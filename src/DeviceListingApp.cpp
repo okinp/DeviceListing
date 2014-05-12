@@ -8,7 +8,7 @@ using namespace std;
 class DeviceListingApp : public AppNative {
   public:
 	void setup();
-	void mouseDown( MouseEvent event );	
+	void mouseDown( MouseEvent event );
 	void update();
 	void draw();
     V4L2Manager manager;
@@ -16,16 +16,20 @@ class DeviceListingApp : public AppNative {
 
 void DeviceListingApp::setup()
 {
-    
+
 }
 
 void DeviceListingApp::mouseDown( MouseEvent event )
 {
-    
+
     for ( auto& dev: manager.getVideoDevices()  )
     {
         std::cout << dev << std::endl;
+
     }
+
+    std::cout << manager.getMinWidth(manager.getVideoDevices().front() ) << std::endl;
+
 }
 
 void DeviceListingApp::update()
@@ -35,7 +39,7 @@ void DeviceListingApp::update()
 void DeviceListingApp::draw()
 {
 	// clear out the window with black
-	gl::clear( Color( 0, 0, 0 ) ); 
+	gl::clear( Color( 0, 0, 0 ) );
 }
 
 CINDER_APP_NATIVE( DeviceListingApp, RendererGl )
