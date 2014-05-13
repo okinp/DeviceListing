@@ -9,25 +9,39 @@
 #ifndef __DeviceListing__V4L2Manager__
 #define __DeviceListing__V4L2Manager__
 
-#include <iostream>
-#include <stdio.h>
-#include <unistd.h>
+#include <errno.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
 #include <linux/videodev2.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <iostream>
 #include <vector>
-#include <string>
+
 using namespace std;
 class V4L2Manager {
 public:
     std::vector< std::string > getVideoDevices();
     int openDevice( const string& dev );
     bool checkSucceed( int er );
-    int  getMinWidth( const string& dev );
-    int  getMaxWidth( const string& dev );
-    int  getMinHeight( const string& dev );
-    int  getMaxHeight( const string& dev );
+    int  getWidth( const string& dev );
+    int  getHeight( const string& dev );
     unsigned char * getPixels(const string& dev);
+    int             print_caps(int fd);
+    int             init_mmap(int fd);
+    static int xioctl(int fd, int request, void *arg)
+    {
+        int r;
+        do r = ioctl (fd, request, arg);
+        while (-1 == r && EINTR == errno);
+        return r;
+    }
+private:
+    uint8_t *   mPixelBuffer;
+
 };
 #endif /* defined(__DeviceListing__V4L2Manager__) */
 

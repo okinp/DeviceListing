@@ -25,10 +25,12 @@ void DeviceListingApp::mouseDown( MouseEvent event )
     for ( auto& dev: manager.getVideoDevices()  )
     {
         std::cout << dev << std::endl;
-
+        int fd = manager.openDevice(dev);
+        manager.print_caps(fd);
+        close(fd);
     }
 
-    std::cout << manager.getMinWidth(manager.getVideoDevices().front() ) << std::endl;
+    //std::cout << manager.getMinWidth(manager.getVideoDevices().front() ) << std::endl;
 
 }
 
