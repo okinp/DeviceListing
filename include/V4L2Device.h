@@ -20,7 +20,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <vector>
-
+#include "cinder/Surface.h"
 using namespace std;
 class V4L2Device {
 public:
@@ -28,12 +28,17 @@ public:
     V4L2Device( const string& name );
     ~V4L2Device();
     int             open();
+    int             close();
     int             getWidth();
     int             getHeight();
-    int             close();
+    
+    Surface         getImage();
     uint8_t *       getPixels();
+    
     int             print_caps();
     int             init_mmap();
+    int             updateImage();
+
     static int xioctl(int fd, int request, void *arg)
     {
         int r;
@@ -45,6 +50,7 @@ private:
     uint8_t *       mPixelBuffer;
     int             mFileDescriptor;
     string          mName;
+    ci::Surface     mFrame;
 };
 
 #endif /* defined(__DeviceListing__V4L2Device__) */

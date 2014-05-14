@@ -43,7 +43,11 @@ int V4L2Device::getHeight()
 }
 uint8_t * V4L2Device::getPixels()
 {
-    
+    if ( -1 == updateImage() )
+    {
+        return nullptr;
+    }
+    return mPixelBuffer;
 }
 int V4L2Device::print_caps()
 {
@@ -120,4 +124,50 @@ int V4L2Device::init_mmap()
     //printf("Image Length: %d\n", buf.bytesused);
     
     return 0;
+}
+int V4L2Device::updateImage()
+{
+    struct v4l2_buffer buf = {0};
+    buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    buf.memory = V4L2_MEMORY_MMAP;
+    buf.index = 0;
+    if(-1 == xioctl(mFileDescriptor, VIDIOC_QBUF, &buf))
+    {
+        perror("Query Buffer");
+        return 1;
+    }
+    
+    if(-1 == xioctl(mFileDescriptor, VIDIOC_STREAMON, &buf.type))
+    {
+        perror("Start Capture");
+        return 1;
+    }
+    
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(mFileDescriptor, &fds);
+    struct timeval tv = {0};
+    tv.tv_sec = 2;
+    int r = select(mFileDescriptor+1, &fds, NULL, NULL, &tv);
+    if(-1 == r)
+    {
+        perror("Waiting for Frame");
+        return 1;
+    }
+    
+    if(-1 == xioctl(mFileDescriptor, VIDIOC_DQBUF, &buf))
+    {
+        perror("Retrieving Frame");
+        return 1;
+    }
+    mFrame = 	Surface( mPixelBuffer, 640, 480, 640*3, ci::SurfaceChannelOrder::RGB);
+    return 0;
+}
+Surface V4L2Device::getImage()
+{
+    if ( -1 == updateImage() )
+    {
+        return Surface();
+    }
+    return mFrame;
 }
