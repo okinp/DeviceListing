@@ -27,10 +27,10 @@ public:
     V4L2Device();
     V4L2Device( const string& name );
     ~V4L2Device();
-    int             open();
+    int             openDevice();
     int             getWidth();
     int             getHeight();
-    int             close();
+    int             closeDevice();
     uint8_t *       getPixels();
     int             print_caps();
     int             init_mmap();

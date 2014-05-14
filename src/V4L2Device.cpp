@@ -11,44 +11,44 @@
 V4L2Device::V4L2Device()
 :mName("/dev/video0")
 {
-    
+
 }
 V4L2Device::V4L2Device( const string& name )
 :mName(name)
 {
-    
+
 }
 V4L2Device::~V4L2Device()
 {
-    close();
+    int j = close(mFileDescriptor);
 }
 
-int V4L2Device::open()
+int V4L2Device::openDevice()
 {
-    mFileDescriptor = open(mName.c_str(), O_RDONLY)
+    mFileDescriptor = open(mName.c_str(), O_RDONLY);
     return -1;
 }
 
-int V4L2Device::close()
+int V4L2Device::closeDevice()
 {
     return close(mFileDescriptor);
 }
 int V4L2Device::getWidth()
 {
-    
+
 }
 int V4L2Device::getHeight()
 {
-    
+
 }
 uint8_t * V4L2Device::getPixels()
 {
-    
+
 }
 int V4L2Device::print_caps()
 {
     struct v4l2_capability caps = {};
-    if (-1 == V4L2Manager::xioctl(mFileDescriptor, VIDIOC_QUERYCAP, &caps))
+    if (-1 == V4L2Device::xioctl(mFileDescriptor, VIDIOC_QUERYCAP, &caps))
     {
         perror("Querying Capabilities");
         return 1;
@@ -97,27 +97,27 @@ int V4L2Device::init_mmap()
     req.count = 1;
     req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     req.memory = V4L2_MEMORY_MMAP;
-    
-    if (-1 == V4L2Manager::xioctl(mFileDescriptor, VIDIOC_REQBUFS, &req))
-        
+
+    if (-1 == V4L2Device::xioctl(mFileDescriptor, VIDIOC_REQBUFS, &req))
+
     {
         perror("Requesting Buffer");
         return 1;
     }
-    
+
     struct v4l2_buffer buf = {0};
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = 0;
-    if(-1 == V4L2Manager::xioctl(mFileDescriptor, VIDIOC_QUERYBUF, &buf))
+    if(-1 == V4L2Device::xioctl(mFileDescriptor, VIDIOC_QUERYBUF, &buf))
     {
         perror("Querying Buffer");
         return 1;
     }
-    
-    mPixelBuffer = mmap (NULL, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, mFileDescriptor, buf.m.offset);
+
+    mPixelBuffer = static_cast<uint8_t*>(mmap (NULL, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, mFileDescriptor, buf.m.offset));
     //printf("Length: %d\nAddress: %p\n", buf.length, buffer);
     //printf("Image Length: %d\n", buf.bytesused);
-    
+
     return 0;
 }
