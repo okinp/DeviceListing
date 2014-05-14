@@ -27,12 +27,13 @@ public:
     V4L2Device();
     V4L2Device( const string& name );
     ~V4L2Device();
-    int             open();
-    int             close();
-    int             getWidth();
-    int             getHeight();
     
     Surface         getImage();
+
+    int             openDevice();
+    int             getWidth();
+    int             getHeight();
+    int             closeDevice();
     uint8_t *       getPixels();
     
     int             print_caps();

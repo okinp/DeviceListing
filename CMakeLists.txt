@@ -84,7 +84,8 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/inc
 ### =====================================================================================================
 list   (APPEND source_files 
         src/DeviceListingApp.cpp
-        src/V4L2Manager.cpp )
+        src/V4L2Manager.cpp 
+        src/V4L2Device.cpp)
 
 
 
