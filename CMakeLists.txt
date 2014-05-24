@@ -2,23 +2,23 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 
 ### =====================================================================================================
-### Entry point. Check to see if the environment is set. 
+### Entry point. Check to see if the environment is set.
 ### The path to cinder's root dir is a prerequisite.
 ### =====================================================================================================
 set (CINDER_ROOT $ENV{CINDER_ROOT})
 if ( "${CINDER_ROOT}" STREQUAL "" )
 	message(FATAL_ERROR "
-	**** 
-	You must export the env variable CINDER_ROOT pointing to your Cinder root directory in order to proceed.. 
-	Example: export CINDER_ROOT=/some/dir 
-	Or you can add it permantly by modifying your .bashrc file 	
+	****
+	You must export the env variable CINDER_ROOT pointing to your Cinder root directory in order to proceed..
+	Example: export CINDER_ROOT=/some/dir
+	Or you can add it permantly by modifying your .bashrc file
 	NOTE: Always use absolute path to point to your Cinder installation
 	****" )
 endif()
 
 
 ### =====================================================================================================
-### Cinder header files + default library dependencies. 
+### Cinder header files + default library dependencies.
 ### =====================================================================================================
 include (${CINDER_ROOT}/CMakeModules/CinderInclude.cmake)
 include (${CINDER_ROOT}/CMakeModules/CinderDepends.cmake)
@@ -27,17 +27,17 @@ include (${CINDER_ROOT}/CMakeModules/CinderDepends.cmake)
 ### =====================================================================================================
 ### Project name.
 ### =====================================================================================================
-PROJECT( LinuxDeviceListing ) 
+PROJECT( LinuxDeviceListing )
 
 ### =====================================================================================================
 ### Turn ON to install the data under /usr/local/share/cinderapps.
 ### Default is OFF. Check the following comment about CMAKE_INSTALL_PREFIX.
 ### =====================================================================================================
-option( INSTALL_APP_DATA_SYSTEM_WIDE "Install data under /usr/local/share/cinderapps" OFF ) 
+option( INSTALL_APP_DATA_SYSTEM_WIDE "Install data under /usr/local/share/cinderapps" OFF )
 
 ### =====================================================================================================
-### The directory where your bin along with any resources / assets 
-### will be installed after running : make install 
+### The directory where your bin along with any resources / assets
+### will be installed after running : make install
 ### Defaults to '/usr/local/bin' but since it feels a bit awkward to be owened by
 ### by root without explicit reason we set it to the user home directory.
 ### This will create a dir with the following structure if INSTALL_APP_DATA_SYSTEM_WIDE option is OFF:
@@ -58,14 +58,14 @@ set(CMAKE_INSTALL_PREFIX "$ENV{HOME}")
 
 
 ### =====================================================================================================
-### VERBOSE CMAKE 
+### VERBOSE CMAKE
 ### =====================================================================================================
 set ( CMAKE_COLOR_MAKEFILE ON )
 set ( CMAKE_VERBOSE_MAKEFILE ON )
 
 
 ### =====================================================================================================
-### COMPILER FLAGS 
+### COMPILER FLAGS
 ### =====================================================================================================
 if( CMAKE_COMPILER_IS_GNUCXX )
     set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -std=c++11 -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings" )
@@ -74,18 +74,26 @@ endif( CMAKE_COMPILER_IS_GNUCXX )
 
 
 ### =====================================================================================================
-### INCLUDE DIRS 
+### INCLUDE DIRS
 ### =====================================================================================================
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${CINDER_INCLUDE})
 
 
 ### =====================================================================================================
-### SOURCE FILES 
+### HEADER + SOURCE FILES
 ### =====================================================================================================
-list   (APPEND source_files 
+
+
+
+list   (APPEND source_files
+        include/V4L2Manager.h
+        include/V4L2Device.h
+        include/V4L2Grab.h
         src/DeviceListingApp.cpp
-        src/V4L2Manager.cpp 
-        src/V4L2Device.cpp)
+        src/V4L2Manager.cpp
+        src/V4L2Device.cpp
+        src/V4L2Grab.cpp
+)
 
 
 
@@ -95,21 +103,21 @@ list   (APPEND source_files
 
 
 ###======================================================================================================
-### Find cinder and glfw. 
+### Find cinder and glfw.
 ###======================================================================================================
-find_library(   CINDER_DEBUG 
+find_library(   CINDER_DEBUG
                 NAMES cinderDebug
                 PATH_SUFFIXES CMake/libs libs
                 PATHS $ENV{CINDER_ROOT}
             )
 
-find_library(   CINDER_RELEASE 
+find_library(   CINDER_RELEASE
                 NAMES cinderRelease
                 PATH_SUFFIXES CMake/libs libs
                 PATHS $ENV{CINDER_ROOT}
             )
 
-find_library(   GLFW3 
+find_library(   GLFW3
                 NAMES glfw3
                 PATH_SUFFIXES CMake/libs libs
                 PATHS $ENV{CINDER_ROOT}
@@ -117,7 +125,7 @@ find_library(   GLFW3
 
 
 ###======================================================================================================
-### Work with what you found. 
+### Work with what you found.
 ###======================================================================================================
 if( CINDER_DEBUG AND NOT CINDER_RELEASE )
     set( CINDER_RELEASE ${CINDER_DEBUG} )
@@ -129,7 +137,7 @@ endif( CINDER_DEBUG AND NOT CINDER_RELEASE )
 
 
 ###======================================================================================================
-### Set the bin name according to the build type. 
+### Set the bin name according to the build type.
 ###======================================================================================================
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     set( bin ${PROJECT_NAME}_D )
@@ -139,44 +147,44 @@ endif()
 
 
 ###======================================================================================================
-### Build bin from the specified source files. 
+### Build bin from the specified source files.
 ###======================================================================================================
 add_executable( ${bin} ${source_files} )
 
 
 ###======================================================================================================
-### Output directory for the executable. 
+### Output directory for the executable.
 ###======================================================================================================
 set ( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin )
 
 
 ###======================================================================================================
-### Choose debug or release based on build type. 
+### Choose debug or release based on build type.
 ###======================================================================================================
 set( CINDER debug ${CINDER_DEBUG} optimized ${CINDER_RELEASE} )
 
 
 ###======================================================================================================
-### Where to install the app data and bin. 
+### Where to install the app data and bin.
 ###======================================================================================================
 if(INSTALL_APP_DATA_SYSTEM_WIDE)
-    INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/resources DESTINATION "/usr/local/share/cinderapps" ) 
-    INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/assets DESTINATION "/usr/local/share/cinderapps" ) 
+    INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/resources DESTINATION "/usr/local/share/cinderapps" )
+    INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/assets DESTINATION "/usr/local/share/cinderapps" )
 else()
-    INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/resources DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}" ) 
-    INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/assets DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}" ) 
+    INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/resources DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}" )
+    INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/assets DESTINATION "${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}" )
 endif(INSTALL_APP_DATA_SYSTEM_WIDE)
 
-INSTALL(TARGETS ${bin} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/bin ) 
+INSTALL(TARGETS ${bin} DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/bin )
 
 
 ###======================================================================================================
-### Link the executable with the necessary libraries. 
+### Link the executable with the necessary libraries.
 ###======================================================================================================
-target_link_libraries( ${bin} ${CINDER} ${GLFW3} ${CINDER_DEPENDS}) 
+target_link_libraries( ${bin} ${CINDER} ${GLFW3} ${CINDER_DEPENDS} v4l2)
 
 ###======================================================================================================
-### This is experimenting for now. 
+### This is experimenting for now.
 ###======================================================================================================
 #set ( SOURCE_CODE_DIRECTORY ${CMAKE_SOURCE_DIR} )
 #set ( APP_ROOT_DIR ${SOURCE_CODE_DIRECTORY} )
